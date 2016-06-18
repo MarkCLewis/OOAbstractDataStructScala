@@ -30,16 +30,20 @@ import scalafx.scene.control.Dialog
 import scalafx.scene.control.ChoiceDialog
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scalafx.stage.WindowEvent
+import akka.actor.ActorSystem
 
 object DrawingMain extends JFXApp {
   private var drawings = List[(Drawing, TreeView[Drawable])]()
+  val system = ActorSystem("DrawingSystem")
 
   private val creators = Map[String, Drawing => Drawable](
     "Rectangle" -> (drawing => new DrawRectangle(drawing, 0, 0, 300, 300, Color.Blue)),
     "Transform" -> (drawing => new DrawTransform(drawing)),
     "Text" -> (drawing => new DrawText(drawing, 100, 100, "Text", Color.Black)),
     "Maze" -> (drawing => new DrawMaze(drawing)),
-    "Mandelbrot" -> (drawing => new DrawMandelbrot(drawing)))
+    "Mandelbrot" -> (drawing => new DrawMandelbrot(drawing)),
+    "Julia Set" -> (drawing => new DrawJulia(drawing)))
 
   stage = new JFXApp.PrimaryStage {
     title = "Drawing Program"
@@ -113,6 +117,8 @@ object DrawingMain extends JFXApp {
       rootPane.top = menuBar
       rootPane.center = tabPane
       root = rootPane
+      
+      onCloseRequest = (we:WindowEvent) => system.terminate()
     }
   }
 
@@ -149,8 +155,8 @@ object DrawingMain extends JFXApp {
       if (text.nonEmpty) {
         commandField.text = ""
         val future = Future { Commands(text, drawing) }
-        future.foreach(value => Platform.runLater {
-          commandArea.text = (commandArea.text+"> "+text+"\n"+value+"\n").value
+        future.foreach(result => Platform.runLater {
+          commandArea.text = (commandArea.text+"> "+text+"\n"+result+"\n").value
         })
       }
     }

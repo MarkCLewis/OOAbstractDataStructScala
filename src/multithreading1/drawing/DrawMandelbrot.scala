@@ -69,10 +69,10 @@ class DrawMandelbrot(d: Drawing) extends Drawable(d) {
   private def startDrawing(): Unit = Future {
     val image = new WritableImage(width, height)
     val writer = image.pixelWriter
-    for (i <- 0 until width par) {
+    for (i <- (0 until width).par) {
       val cr = rmin + i * (rmax - rmin) / width
       for (j <- 0 until height) {
-        val ci = imax - j * (imax - imin) / width
+        val ci = imax - j * (imax - imin) / height
         val cnt = mandelCount(cr, ci)
         writer.setColor(i, j, if (cnt == maxCount) Color.Black else
           Color(1.0, 0.0, 0.0, math.log(cnt.toDouble) / math.log(maxCount)))

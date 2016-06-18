@@ -1,0 +1,1 @@
+scalac -d bin -feature -deprecation -language:reflectiveCalls -cp /home/mlewis/scalafx_2.12.0-M3-8.0.60-R10-SNAPSHOT.jar:/home/mlewis/akka-2.4.7/lib/akka/akka-actor_2.11-2.4.7.jar:/home/mlewis/akka-2.4.7/lib/akka/config-1.3.0.jar:/home/mlewis/workspace/junit-4.12.jar:/home/mlewis/workspace/hamcrest-core-1.3.jar src/*/*.scala src/*/*/*.scala src/*/*/*/*.scala
