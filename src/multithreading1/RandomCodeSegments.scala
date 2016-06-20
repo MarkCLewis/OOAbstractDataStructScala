@@ -9,11 +9,12 @@ import scala.collection.parallel.mutable.ParArray
 
 object RandomCodeSegments extends App {
   def timeCode[A](body: => A): A = {
-    for (i <- 1 to 10) body
+    val n = 10
+    for (i <- 1 to n) body
     val start = System.nanoTime()
-    for (i <- 1 to 9) body
+    for (i <- 1 to n-1) body
     val ret = body
-    println((System.nanoTime() - start) / 1e9 / 100)
+    println((System.nanoTime() - start) / 1e9 / n)
     ret
   }
 
