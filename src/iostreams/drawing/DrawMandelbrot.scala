@@ -10,19 +10,25 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalafx.application.Platform
 
-class DrawMandelbrot(d: Drawing) extends Drawable(d) {
-  private var (rmin, rmax, imin, imax) = (-1.5, 0.5, -1.0, 1.0)
-  private var (width, height) = (600, 600)
-  private var maxCount = 100
-  private var img = new WritableImage(width, height)
-  private var propPanel: Option[Node] = None
-  
+class DrawMandelbrot(
+    d: Drawing,
+    private var rmin: Double,
+    private var rmax: Double,
+    private var imin: Double,
+    private var imax: Double,
+    private var width: Int,
+    private var height: Int,
+    private var maxCount: Int) extends Drawable(d) {
+  @transient private var img = new WritableImage(width, height)
+  @transient private var propPanel: Node = null
+
   startDrawing()
 
   override def toString() = "Mandelbrot"
 
   def draw(gc: GraphicsContext): Unit = {
-    gc.drawImage(img, 0, 0)
+    if (img != null) gc.drawImage(img, 0, 0)
+    else startDrawing()
   }
 
   def propertiesPanel(): Node = {
@@ -34,10 +40,10 @@ class DrawMandelbrot(d: Drawing) extends Drawable(d) {
           nv
         }
       } catch {
-        case nfe:NumberFormatException => originalValue
+        case nfe: NumberFormatException => originalValue
       }
     }
-    if (propPanel.isEmpty) {
+    if (propPanel == null) {
       val panel = new VBox
       panel.children = List(
         DrawingMain.labeledTextField("Real Min", rmin.toString(), s => { rmin = checkChangeMade(rmin, s.toDouble) }),
@@ -47,9 +53,13 @@ class DrawMandelbrot(d: Drawing) extends Drawable(d) {
         DrawingMain.labeledTextField("Max Count", maxCount.toString(), s => { maxCount = checkChangeMade(maxCount, s.toInt) }),
         DrawingMain.labeledTextField("Width", width.toString(), s => { width = checkChangeMade(width, s.toInt) }),
         DrawingMain.labeledTextField("Height", height.toString(), s => { height = checkChangeMade(height, s.toInt) }))
-      propPanel = Some(panel)
+      propPanel = panel
     }
-    propPanel.get
+    propPanel
+  }
+
+  def toXML: xml.Node = {
+    <drawable type="mandelbrot" rmin={ rmin.toString() } rmax={ rmax.toString() } imin={ imin.toString() } imax={ imax.toString() } width={ width.toString() } height={ height.toString() } maxCount={ maxCount.toString() }/>
   }
 
   private def mandelIter(zr: Double, zi: Double, cr: Double, ci: Double) = (zr * zr - zi * zi + cr, 2 * zr * zi + ci)
@@ -82,5 +92,20 @@ class DrawMandelbrot(d: Drawing) extends Drawable(d) {
       img = image
       drawing.draw()
     }
+  }
+}
+
+object DrawMandelbrot {
+  def apply(d: Drawing) = new DrawMandelbrot(d, -1.5, 0.5, -1.0, 1.0, 600, 600, 100)
+
+  def apply(n: xml.Node, d: Drawing) = {
+    val rmin = (n \ "@rmin").text.toDouble
+    val rmax = (n \ "@rmax").text.toDouble
+    val imin = (n \ "@imin").text.toDouble
+    val imax = (n \ "@imax").text.toDouble
+    val width = (n \ "@width").text.toInt
+    val height = (n \ "@height").text.toInt
+    val maxCount = (n \ "@maxCount").text.toInt
+    new DrawMandelbrot(d, rmin, rmax, imin, imax, width, height, maxCount)
   }
 }

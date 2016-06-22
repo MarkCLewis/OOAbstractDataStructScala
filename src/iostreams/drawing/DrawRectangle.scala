@@ -20,7 +20,7 @@ class DrawRectangle(
     private var _height: Double,
     @transient private var _color: Color) extends Drawable(d) {
 
-  private var propPanel: Option[Node] = None
+  @transient private var propPanel: Node = null
 
   override def toString = "Rectangle"
 
@@ -30,7 +30,7 @@ class DrawRectangle(
   }
 
   def propertiesPanel(): Node = {
-    if (propPanel.isEmpty) {
+    if (propPanel == null) {
       val panel = new VBox
       val xField = DrawingMain.labeledTextField("x", _x.toString, s => { _x = s.toDouble; drawing.draw() })
       val yField = DrawingMain.labeledTextField("y", _y.toString, s => { _y = s.toDouble; drawing.draw() })
@@ -42,9 +42,15 @@ class DrawRectangle(
         drawing.draw()
       }
       panel.children = List(xField, yField, widthField, heightField, colorPicker)
-      propPanel = Some(panel)
+      propPanel = panel
     }
-    propPanel.get
+    propPanel
+  }
+
+  def toXML: xml.Node = {
+    <drawable type="rectangle" x={ _x.toString() } y={ _y.toString() } width={ _width.toString() } height={ _height.toString() }>
+      { Drawing.colorToXML(_color) }
+    </drawable>
   }
 
   private def writeObject(oos: ObjectOutputStream) {
@@ -58,5 +64,19 @@ class DrawRectangle(
     ois.defaultReadObject()
     _color = Color(ois.readDouble(), ois.readDouble(), ois.readDouble(), ois.readDouble())
   }
+}
 
+object DrawRectangle {
+  def apply(d: Drawing, x: Double, y: Double, width: Double, height: Double, color: Color) = {
+    new DrawRectangle(d, x, y, width, height, color)
+  }
+
+  def apply(n: xml.Node, d: Drawing) = {
+    val x = (n \ "@x").text.toDouble
+    val y = (n \ "@y").text.toDouble
+    val width = (n \ "@width").text.toDouble
+    val height = (n \ "@height").text.toDouble
+    val color = Drawing.xmlToColor(n \ "color")
+    new DrawRectangle(d, x, y, width, height, color)
+  }
 }

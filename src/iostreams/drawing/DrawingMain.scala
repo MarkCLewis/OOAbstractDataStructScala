@@ -32,18 +32,35 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalafx.stage.WindowEvent
 import akka.actor.ActorSystem
+import java.io.IOException
+import java.io.FileNotFoundException
+import java.io.File
+import scalafx.stage.FileChooser
+import java.io.FileOutputStream
+import java.io.ObjectOutputStream
+import java.io.BufferedOutputStream
+import java.io.OutputStream
+import java.util.zip.ZipOutputStream
+import java.util.zip.ZipEntry
+import java.io.OutputStreamWriter
+import java.io.FileInputStream
+import java.io.ObjectInputStream
+import java.io.BufferedInputStream
+import java.util.zip.ZipInputStream
+import java.io.InputStream
 
 object DrawingMain extends JFXApp {
   private var drawings = List[(Drawing, TreeView[Drawable])]()
   val system = ActorSystem("DrawingSystem")
+  val tabPane = new TabPane
 
   private val creators = Map[String, Drawing => Drawable](
-    "Rectangle" -> (drawing => new DrawRectangle(drawing, 0, 0, 300, 300, Color.Blue)),
-    "Transform" -> (drawing => new DrawTransform(drawing)),
-    "Text" -> (drawing => new DrawText(drawing, 100, 100, "Text", Color.Black)),
-    "Maze" -> (drawing => new DrawMaze(drawing)),
-    "Mandelbrot" -> (drawing => new DrawMandelbrot(drawing)),
-    "Julia Set" -> (drawing => new DrawJulia(drawing)))
+    "Rectangle" -> (drawing => DrawRectangle(drawing, 0, 0, 300, 300, Color.Blue)),
+    "Transform" -> (drawing => DrawTransform(drawing)),
+    "Text" -> (drawing => DrawText(drawing, 100, 100, "Text", Color.Black)),
+    "Maze" -> (drawing => DrawMaze(drawing)),
+    "Mandelbrot" -> (drawing => DrawMandelbrot(drawing)),
+    "Julia Set" -> (drawing => DrawJulia(drawing)))
 
   stage = new JFXApp.PrimaryStage {
     title = "Drawing Program"
@@ -53,10 +70,12 @@ object DrawingMain extends JFXApp {
       val fileMenu = new Menu("File")
       val newItem = new MenuItem("New")
       val openItem = new MenuItem("Open")
-      val saveItem = new MenuItem("Save")
+      val saveBinaryItem = new MenuItem("Save Binary")
+      val saveXMLItem = new MenuItem("Save XML")
+      val saveZipItem = new MenuItem("Save Zip")
       val closeItem = new MenuItem("Close")
       val exitItem = new MenuItem("Exit")
-      fileMenu.items = List(newItem, openItem, saveItem, closeItem, new SeparatorMenuItem, exitItem)
+      fileMenu.items = List(newItem, openItem, saveBinaryItem, saveXMLItem, saveZipItem, closeItem, new SeparatorMenuItem, exitItem)
       val editMenu = new Menu("Edit")
       val addItem = new MenuItem("Add Drawable")
       val copyItem = new MenuItem("Copy")
@@ -66,17 +85,23 @@ object DrawingMain extends JFXApp {
       menuBar.menus = List(fileMenu, editMenu)
 
       // Tabs
-      val tabPane = new TabPane
-      val (drawing, tree, tab) = makeDrawingTab()
+      val drawing = Drawing()
+      val (tree, tab) = makeDrawingTab(drawing, "Untitled")
       drawings = drawings :+ (drawing, tree)
       tabPane += tab
 
       // Menu Actions
       newItem.onAction = (ae: ActionEvent) => {
-        val (drawing, tree, tab) = makeDrawingTab()
+        val drawing = Drawing()
+        val (tree, tab) = makeDrawingTab(drawing, "Untitled")
         drawings = drawings :+ (drawing, tree)
         tabPane += tab
+        drawing.draw()
       }
+      openItem.onAction = (ae: ActionEvent) => open()
+      saveBinaryItem.onAction = (ae: ActionEvent) => saveBinary()
+      saveXMLItem.onAction = (ae: ActionEvent) => saveXML()
+      saveZipItem.onAction = (ae: ActionEvent) => saveZip()
       closeItem.onAction = (ae: ActionEvent) => {
         val current = tabPane.selectionModel.value.selectedIndex.value
         if (current >= 0) {
@@ -117,15 +142,16 @@ object DrawingMain extends JFXApp {
       rootPane.top = menuBar
       rootPane.center = tabPane
       root = rootPane
-      
-      onCloseRequest = (we:WindowEvent) => system.terminate()
+
+      drawing.draw()
+      onCloseRequest = (we: WindowEvent) => system.terminate()
     }
   }
 
-  private def makeDrawingTab(): (Drawing, TreeView[Drawable], Tab) = {
+  private def makeDrawingTab(drawing: Drawing, tabName: String): (TreeView[Drawable], Tab) = {
     val canvas = new Canvas(2000, 2000)
     val gc = canvas.graphicsContext2D
-    val drawing = new Drawing(gc)
+    drawing.graphicsContext = gc
 
     // left side
     val drawingTree = new TreeView[Drawable]
@@ -188,10 +214,10 @@ object DrawingMain extends JFXApp {
     }
 
     val tab = new Tab
-    tab.text = "Untitled"
+    tab.text = tabName
     tab.content = topSplit
     tab.closable = false
-    (drawing, drawingTree, tab)
+    (drawingTree, tab)
   }
 
   def labeledTextField(labelText: String, initialText: String, action: String => Unit): BorderPane = {
@@ -205,4 +231,112 @@ object DrawingMain extends JFXApp {
     field.focused.onChange(if (!field.focused.value) action(field.text.value))
     bp
   }
+
+  private def open(): Unit = {
+    val chooser = new FileChooser()
+    val file = chooser.showOpenDialog(stage)
+    if (file != null) {
+      if (file.getName().endsWith(".bin")) {
+        val ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))
+        withInputStream(ois)(strm => {
+          deserializeDrawingFromStream(strm, file.getName())
+        })
+      } else if (file.getName().endsWith(".zip")) {
+        val zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(file)))
+        zis.getNextEntry
+        val nd = Drawing(xml.XML.load(zis))
+        val (tree, tab) = makeDrawingTab(nd, file.getName)
+        drawings = drawings :+ (nd, tree)
+        tabPane += tab
+        nd.draw()
+      } else if (file.getName().endsWith(".xml")) {
+        val nd = Drawing(xml.XML.loadFile(file))
+        val (tree, tab) = makeDrawingTab(nd, file.getName)
+        drawings = drawings :+ (nd, tree)
+        tabPane += tab
+        nd.draw()
+      }
+    }
+  }
+
+  private def withInputStream[A, B <: InputStream](is: B)(body: B => A): A = {
+    try {
+      body(is)
+    } finally {
+      is.close()
+    }
+  }
+
+  private def deserializeDrawingFromStream(ois: ObjectInputStream, name: String) {
+    val obj = ois.readObject()
+    obj match {
+      case nd: Drawing =>
+        val (tree, tab) = makeDrawingTab(nd, name)
+        drawings = drawings :+ (nd, tree)
+        tabPane += tab
+        nd.draw()
+      case _ =>
+    }
+  }
+
+  private def saveBinary(): Unit = {
+    withSaveFile(file => {
+      val oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
+      withOutputStream(oos)(strm => {
+        setTabAndGetDrawing(file.getName()).foreach(drawing => strm.writeObject(drawing))
+      })
+    })
+  }
+
+  private def saveXML(): Unit = {
+    withSaveFile(file => {
+      setTabAndGetDrawing(file.getName()).foreach(drawing => xml.XML.save(file.getAbsolutePath(), drawing.toXML))
+    })
+  }
+
+  private def saveZip(): Unit = {
+    withSaveFile(file => {
+      setTabAndGetDrawing(file.getName()).foreach(drawing => {
+        val zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
+        zos.putNextEntry(new ZipEntry(file.getName().dropRight(3)+"xml"))
+        val sw = new OutputStreamWriter(zos)
+        try {
+          setTabAndGetDrawing(file.getName()).foreach(drawing => xml.XML.write(sw, drawing.toXML, "", false, null))
+        } finally {
+          sw.close
+        }
+      })
+    })
+  }
+
+  private def withOutputStream[A, B <: OutputStream](os: B)(body: B => A): A = {
+    try {
+      body(os)
+    } finally {
+      os.close()
+    }
+  }
+
+  private def withSaveFile(body: File => Unit): Unit = {
+    val chooser = new FileChooser
+    val file = chooser.showSaveDialog(stage)
+    if (file != null) {
+      try {
+        body(file)
+      } catch {
+        case ex: FileNotFoundException => ex.printStackTrace()
+        case ex: IOException => ex.printStackTrace()
+      }
+    }
+  }
+
+  private def setTabAndGetDrawing(name: String): Option[Drawing] = {
+    val current = tabPane.selectionModel.value.selectedIndex.value
+    if (current >= 0) {
+      val (drawing, treeView) = drawings(current)
+      tabPane.tabs(current).text = name
+      Some(drawing)
+    } else None
+  }
+
 }

@@ -15,22 +15,33 @@ import akka.routing.BalancingPool
 import akka.actor.Actor
 import akka.actor.ActorRef
 
-class DrawJulia(d: Drawing) extends Drawable(d) {
-  private var (rmin, rmax, imin, imax) = (-1.0, 1.0, -1.0, 1.0)
-  private var (creal, cimag) = (-0.5, 0.6)
-  private var (width, height) = (600, 600)
-  private var maxCount = 100
-  private var img = new WritableImage(width, height)
-  private val juliaActor = DrawingMain.system.actorOf(Props(new JuliaActor), "JuliaActor")
-  private val router = DrawingMain.system.actorOf(BalancingPool(5).props(Props(new LineActor)), "poolRouter")
-  private var propPanel: Option[Node] = None
+class DrawJulia(
+    d: Drawing,
+    private var rmin: Double,
+    private var rmax: Double,
+    private var imin: Double,
+    private var imax: Double,
+    private var creal: Double,
+    private var cimag: Double,
+    private var width: Int,
+    private var height: Int,
+    private var maxCount: Int) extends Drawable(d) {
+  @transient private var img = new WritableImage(width, height)
+  @transient private var juliaActor: ActorRef = null
+  @transient private var router: ActorRef = null
+  @transient private var propPanel: Node = null
 
+  makeActors()
   juliaActor ! MakeImage
 
   override def toString() = "Julia Set"
 
   def draw(gc: GraphicsContext): Unit = {
-    gc.drawImage(img, 0, 0)
+    if (img != null) gc.drawImage(img, 0, 0)
+    else {
+      if (juliaActor == null) makeActors()
+      juliaActor ! MakeImage
+    }
   }
 
   def propertiesPanel(): Node = {
@@ -38,6 +49,7 @@ class DrawJulia(d: Drawing) extends Drawable(d) {
       try {
         val nv = newValue
         if (originalValue == nv) originalValue else {
+          if (juliaActor == null) makeActors()
           juliaActor ! MakeImage
           nv
         }
@@ -45,7 +57,7 @@ class DrawJulia(d: Drawing) extends Drawable(d) {
         case nfe: NumberFormatException => originalValue
       }
     }
-    if (propPanel.isEmpty) {
+    if (propPanel == null) {
       val panel = new VBox
       panel.children = List(
         DrawingMain.labeledTextField("C-real", creal.toString(), s => { creal = checkChangeMade(creal, s.toDouble) }),
@@ -57,9 +69,18 @@ class DrawJulia(d: Drawing) extends Drawable(d) {
         DrawingMain.labeledTextField("Max Count", maxCount.toString(), s => { maxCount = checkChangeMade(maxCount, s.toInt) }),
         DrawingMain.labeledTextField("Width", width.toString(), s => { width = checkChangeMade(width, s.toInt) }),
         DrawingMain.labeledTextField("Height", height.toString(), s => { height = checkChangeMade(height, s.toInt) }))
-      propPanel = Some(panel)
+      propPanel = panel
     }
-    propPanel.get
+    propPanel
+  }
+
+  def toXML: xml.Node = {
+    <drawable type="julia" rmin={ rmin.toString() } rmax={ rmax.toString() } imin={ imin.toString() } imax={ imax.toString() } creal={ creal.toString() } cimag={ cimag.toString() } width={ width.toString() } height={ height.toString() } maxCount={ maxCount.toString() }/>
+  }
+
+  private def makeActors(): Unit = {
+    juliaActor = DrawingMain.system.actorOf(Props(new JuliaActor), "JuliaActor")
+    router = DrawingMain.system.actorOf(BalancingPool(5).props(Props(new LineActor)), "poolRouter")
   }
 
   private def juliaIter(zr: Double, zi: Double, cr: Double, ci: Double) = (zr * zr - zi * zi + cr, 2 * zr * zi + ci)
@@ -117,5 +138,22 @@ class DrawJulia(d: Drawing) extends Drawable(d) {
             Color(1.0, 0.0, 0.0, math.log(cnt.toDouble) / math.log(maxCount))
         }))
     }
+  }
+}
+
+object DrawJulia {
+  def apply(d: Drawing) = new DrawJulia(d, -1, 1, -1, 1, -0.5, 0.6, 600, 600, 100)
+
+  def apply(n: xml.Node, d: Drawing) = {
+    val rmin = (n \ "@rmin").text.toDouble
+    val rmax = (n \ "@rmax").text.toDouble
+    val imin = (n \ "@imin").text.toDouble
+    val imax = (n \ "@imax").text.toDouble
+    val creal = (n \ "@creal").text.toDouble
+    val cimag = (n \ "@cimag").text.toDouble
+    val width = (n \ "@width").text.toInt
+    val height = (n \ "@height").text.toInt
+    val maxCount = (n \ "@maxCount").text.toInt
+    new DrawJulia(d, rmin, rmax, imin, imax, creal, cimag, width, height, maxCount)
   }
 }

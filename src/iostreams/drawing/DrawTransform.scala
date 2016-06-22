@@ -12,12 +12,14 @@ import scalafx.scene.transform.Translate
 import scalafx.scene.transform.Scale
 import scalafx.scene.transform.Shear
 
-class DrawTransform(d: Drawing) extends Drawable(d) {
-  private val _children = mutable.Buffer[Drawable]()
-  private var propPanel: Option[Node] = None
-  private var transformType = DrawTransform.Translate
-  private var value1 = 0.0
-  private var value2 = 0.0
+class DrawTransform(
+    d: Drawing,
+    private val _children: mutable.Buffer[Drawable],
+    private var transformType: DrawTransform.Value = DrawTransform.Translate,
+    private var value1: Double = 0.0,
+    private var value2: Double = 0.0) extends Drawable(d) {
+
+  @transient private var propPanel: Node = null
 
   def children = _children
 
@@ -44,7 +46,7 @@ class DrawTransform(d: Drawing) extends Drawable(d) {
   }
 
   def propertiesPanel(): Node = {
-    if (propPanel.isEmpty) {
+    if (propPanel == null) {
       val panel = new VBox
       val combo = new ComboBox(DrawTransform.values.toSeq)
       combo.onAction = (ae: ActionEvent) => {
@@ -55,12 +57,30 @@ class DrawTransform(d: Drawing) extends Drawable(d) {
       val v1Field = DrawingMain.labeledTextField("x/theta", value1.toString, s => { value1 = s.toDouble; drawing.draw() })
       val v2Field = DrawingMain.labeledTextField("y", value2.toString, s => { value2 = s.toDouble; drawing.draw() })
       panel.children = List(combo, v1Field, v2Field)
-      propPanel = Some(panel)
+      propPanel = panel
     }
-    propPanel.get
+    propPanel
+  }
+
+  def toXML: xml.Node = {
+    <drawable type="transform" value1={ value1.toString() } value2={ value2.toString() } transType={ transformType.toString() }>
+      { _children.map(c => c.toXML) }
+    </drawable>
   }
 }
 
 object DrawTransform extends Enumeration {
   val Rotate, Scale, Shear, Translate = Value
+
+  def apply(d: Drawing): DrawTransform = {
+    new DrawTransform(d, mutable.Buffer[Drawable]())
+  }
+
+  def apply(n: xml.NodeSeq, d: Drawing): DrawTransform = {
+    val children = (n \ "drawable").map(dnode => Drawable.makeDrawable(dnode, d)).toBuffer
+    val transType = (n \ "@transType").text
+    val value1 = (n \ "@value1").text.toDouble
+    val value2 = (n \ "@value2").text.toDouble
+    new DrawTransform(d, children, DrawTransform.values.find(_.toString == transType).get, value1, value2)
+  }
 }

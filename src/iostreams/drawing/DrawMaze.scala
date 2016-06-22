@@ -10,30 +10,20 @@ import scalafx.scene.control.Button
 import scalafx.event.ActionEvent
 import stackqueue.adt.ArrayQueue
 
-class DrawMaze(d: Drawing) extends Drawable(d) {
-
-  private val maze = Array(
-    Array(0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-    Array(0, 1, 0, 0, 1, 0, 1, 0, 1, 0),
-    Array(0, 1, 0, 1, 1, 0, 1, 0, 1, 0),
-    Array(0, 1, 0, 0, 1, 0, 1, 0, 1, 0),
-    Array(0, 1, 1, 0, 1, 0, 1, 0, 1, 0),
-    Array(0, 0, 0, 0, 0, 0, 1, 0, 1, 0),
-    Array(0, 1, 1, 1, 1, 1, 1, 0, 1, 1),
-    Array(0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
-    Array(0, 1, 0, 1, 1, 1, 1, 0, 1, 0),
-    Array(0, 0, 0, 1, 0, 0, 0, 0, 1, 0))
+class DrawMaze(
+    d: Drawing,
+    private val maze: Array[Array[Int]],
+    private var startX: Int = 0,
+    private var startY: Int = 0,
+    private var endX: Int = 9,
+    private var endY: Int = 9) extends Drawable(d) {
 
   private val gridWidth = 20
   private val offsets = Seq((0, -1), (1, 0), (0, 1), (-1, 0))
 
   private var drawVisited = Set[(Int, Int)]()
-  private var startX = 0
-  private var startY = 0
-  private var endX = 9
-  private var endY = 9
 
-  private var propPanel: Option[Node] = None
+  @transient private var propPanel: Node = null
 
   override def toString = "Maze"
 
@@ -51,7 +41,7 @@ class DrawMaze(d: Drawing) extends Drawable(d) {
   }
 
   def propertiesPanel(): Node = {
-    if (propPanel.isEmpty) {
+    if (propPanel == null) {
       val panel = new VBox
       val bfs = new Button("Breadth First Search")
       bfs.onAction = (ae: ActionEvent) => {
@@ -62,12 +52,18 @@ class DrawMaze(d: Drawing) extends Drawable(d) {
         drawing.draw()
       }
       panel.children = List(bfs)
-      propPanel = Some(panel)
+      propPanel = panel
     }
-    propPanel.get
+    propPanel
   }
 
-  def breadthFirstShortestPath(): Option[List[(Int, Int)]] = {
+  def toXML: xml.Node = {
+    <drawable type="maze" startX={ startX.toString() } startY={ startY.toString() } endX={ endX.toString() } endY={ endY.toString() }>
+      { maze.map(r => <row>{ r.mkString(",") }</row>) }
+    </drawable>
+  }
+
+  private def breadthFirstShortestPath(): Option[List[(Int, Int)]] = {
     val queue = new ArrayQueue[List[(Int, Int)]]
     queue.enqueue(List(startX -> startY))
     var solution: Option[List[(Int, Int)]] = None
@@ -89,4 +85,30 @@ class DrawMaze(d: Drawing) extends Drawable(d) {
     solution
   }
 
+}
+
+object DrawMaze {
+  def apply(d: Drawing) = {
+    val maze = Array(
+      Array(0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+      Array(0, 1, 0, 0, 1, 0, 1, 0, 1, 0),
+      Array(0, 1, 0, 1, 1, 0, 1, 0, 1, 0),
+      Array(0, 1, 0, 0, 1, 0, 1, 0, 1, 0),
+      Array(0, 1, 1, 0, 1, 0, 1, 0, 1, 0),
+      Array(0, 0, 0, 0, 0, 0, 1, 0, 1, 0),
+      Array(0, 1, 1, 1, 1, 1, 1, 0, 1, 1),
+      Array(0, 1, 0, 0, 0, 0, 0, 0, 0, 0),
+      Array(0, 1, 0, 1, 1, 1, 1, 0, 1, 0),
+      Array(0, 0, 0, 1, 0, 0, 0, 0, 1, 0))
+    new DrawMaze(d, maze)
+  }
+
+  def apply(n: xml.Node, d: Drawing) = {
+    val maze = (n \ "row").map(_.text.split(",").map(_.toInt)).toArray
+    val startX = (n \ "@startX").text.toInt
+    val startY = (n \ "@startY").text.toInt
+    val endX = (n \ "@endX").text.toInt
+    val endY = (n \ "@endY").text.toInt
+    new DrawMaze(d, maze, startX, startY, endX, endY)
+  }
 }
