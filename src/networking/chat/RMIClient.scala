@@ -49,13 +49,13 @@ object RMIClient extends UnicastRemoteObject with JFXApp with RemoteClient {
   chatField.onAction = (ae: ActionEvent) => {
     if (chatField.text.value.trim.nonEmpty) {
       val recipients = if (userList.selectionModel.value.selectedItems.isEmpty) {
-        server.publicMessage(RMIClient.this, chatField.text.value)
+        server.publicMessage(this, chatField.text.value)
         clients
       } else {
         userList.selectionModel.value.selectedIndices.map(i => clients(i)).toSeq
       }
       recipients.foreach(r => try {
-        r.message(RMIClient.this, chatField.text.value)
+        r.message(this, chatField.text.value)
       } catch {
         case ex: RemoteException => chatText.text = chatText.text.value+"Couldn't send to one recipient."
       })
