@@ -1,4 +1,4 @@
-package networking.drawing
+package priorityqueues.drawing
 
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -57,6 +57,8 @@ import scalafx.scene.layout.BorderPane
 import scalafx.scene.paint.Color
 import scalafx.stage.FileChooser
 import scalafx.stage.WindowEvent
+import scalafx.scene.control.Button
+import scalafx.animation.AnimationTimer
 
 object DrawingMain extends JFXApp {
   try {
@@ -78,7 +80,9 @@ object DrawingMain extends JFXApp {
     "Text" -> (drawing => DrawText(drawing, 100, 100, "Text", Color.Black)),
     "Maze" -> (drawing => DrawMaze(drawing)),
     "Mandelbrot" -> (drawing => DrawMandelbrot(drawing)),
-    "Julia Set" -> (drawing => DrawJulia(drawing)))
+    "Julia Set" -> (drawing => DrawJulia(drawing)),
+    "Cell Simulation" -> (drawing => DrawCellSim(drawing, 300, 300, 200, 1.0, 2.0, 10)),
+    "Bouncing Balls" -> (drawing => DrawBouncingBalls(drawing)))
 
   stage = new JFXApp.PrimaryStage {
     title = "Drawing Program"
@@ -229,11 +233,33 @@ object DrawingMain extends JFXApp {
     leftSplit.items ++= List(treeScroll, propertyPane)
 
     // right side
+    var lastTime = 0L
+    val timer = AnimationTimer(time => {
+      val delta = (time-lastTime)/1e9
+      if(delta > 0 && delta < 0.1) {
+        drawing.advance(delta)
+        drawing.draw()
+      }
+      lastTime = time
+    })
+    val sliderBorder = new BorderPane
     val slider = new Slider(0, 1000, 0)
+    val timerButton = new Button("Start Timer")
+    timerButton.onAction = (ae:ActionEvent) => {
+      if(timerButton.text.value == "Start Timer") {
+        timer.start()
+        timerButton.text = "Stop Timer"
+      } else {
+        timer.stop()
+        timerButton.text = "Start Timer"
+      }
+    }
+    sliderBorder.center = slider
+    sliderBorder.left = timerButton
     val rightTopBorder = new BorderPane
     val canvasScroll = new ScrollPane
     canvasScroll.content = canvas
-    rightTopBorder.top = slider
+    rightTopBorder.top = sliderBorder
     rightTopBorder.center = canvasScroll
     val commandField = new TextField
     val commandArea = new TextArea
