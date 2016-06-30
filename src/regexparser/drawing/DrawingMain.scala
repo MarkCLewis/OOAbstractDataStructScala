@@ -1,4 +1,4 @@
-package trees.drawing
+package regexparser.drawing
 
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
