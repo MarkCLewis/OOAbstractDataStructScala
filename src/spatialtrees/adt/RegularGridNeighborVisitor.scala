@@ -19,22 +19,22 @@ class RegularGridNeighborVisitor[A <% Int => Double](
       cx <- grid.indices
       cy <- grid(cx).indices
       (dx, dy) <- offsets
-      val gx = cx + dx
-      val gy = cy + dy
+      gx = cx + dx
+      gy = cy + dy
       if gx >= 0 && gx < grid.length && gy >= 0 && gy < grid(gx).length
       i <- grid(cx)(cy).indices
-      val pi = p(grid(cx)(cy)(i))
+      pi = p(grid(cx)(cy)(i))
     } {
       if (dx == 0 && dy == 0) {
         for {
           j <- i + 1 until grid(cx)(cy).length
-          val pj = p(grid(cx)(cy)(j))
+          pj = p(grid(cx)(cy)(j))
           if dist(pi, pj) <= tDist
         } visit(pi, pj)
       } else {
         for {
           j <- grid(gx)(gy)
-          val pj = p(j)
+          pj = p(j)
           if dist(pi, pj) <= tDist
         } visit(pi, pj)
       }
@@ -51,12 +51,12 @@ class RegularGridNeighborVisitor[A <% Int => Double](
     val pi = p(i)
     for {
       (dx, dy) <- offsets
-      val gx = cx + dx
-      val gy = cy + dy
+      gx = cx + dx
+      gy = cy + dy
       if gx >= 0 && gx < grid.length && gy >= 0 && gy < grid(gx).length
       j <- grid(gx)(gy)
       if i != j
-      val pj = p(j)
+      pj = p(j)
       if dist(pi, pj) <= tDist
     } visit(pi, pj)
   }

@@ -22,7 +22,8 @@ object RayTracing extends App {
           if (first >= 0 && first < ret) {
             val (j, k) = ((i + 1) % 3, (i + 2) % 3)
             if (first >= (minp(j) min maxp(j)) && first <= (minp(j) max maxp(j)) &&
-              first >= (minp(k) min maxp(k)) && first <= (minp(k) max maxp(k))) ret = first
+                first >= (minp(k) min maxp(k)) && first <= (minp(k) max maxp(k))) 
+              ret = first
           }
         }
         ret

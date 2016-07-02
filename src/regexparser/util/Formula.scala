@@ -3,7 +3,7 @@ package regexparser.util
 import scala.util.parsing.combinator._
 
 class Formula(formula: String) {
-  private val root = Formula parseAll (Formula.cond, formula) get
+  private val root = Formula.parseAll(Formula.cond, formula).get
 
   def apply(vars: collection.Map[String, Double]) = root(vars)
 

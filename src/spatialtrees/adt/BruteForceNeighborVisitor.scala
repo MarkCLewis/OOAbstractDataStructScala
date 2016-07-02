@@ -7,9 +7,9 @@ class BruteForceNeighborVisitor[A <% Int => Double](
   def visitAllNeighbors(tDist: Double, visit: (A, A) => Unit): Unit = {
     for {
       i <- 0 until p.length
-      val pi = p(i)
+      pi = p(i)
       j <- i + 1 until p.length
-      val pj = p(j)
+      pj = p(j)
       if dist(pi, pj) <= tDist
     } visit(pi, pj)
   }
@@ -19,7 +19,7 @@ class BruteForceNeighborVisitor[A <% Int => Double](
     for {
       j <- 0 until p.length
       if j != i
-      val pj = p(j)
+      pj = p(j)
       if dist(pi, pj) <= tDist
     } visit(pi, pj)
   }

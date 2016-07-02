@@ -60,7 +60,7 @@ class IntersectionOctree[A <: IntersectionOctree.IntersectionObject](
 
     private def firstChildObj(pc: ParamCalc[A]): Option[(A, Double)] = {
       if (children == null) None else {
-        val cparams = for (c <- children; val p = pc(min, max); if c != Double.PositiveInfinity) yield c -> p
+        val cparams = for (c <- children; p = pc(min, max); if c != Double.PositiveInfinity) yield c -> p
         for (i <- 1 until cparams.length) {
           val tmp = cparams(i)
           var j = i - 1
