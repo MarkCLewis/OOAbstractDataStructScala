@@ -1,48 +1,561 @@
 <!DOCTYPE html >
 <html>
         <head>
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
           <title></title>
           <meta name="description" content="" />
           <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="lib/index.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
       <script type="text/javascript" src="lib/jquery.js"></script>
-      <script type="text/javascript" src="lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="lib/jquery.layout.js"></script>
+      <script type="text/javascript" src="lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="lib/jquery.mousewheel.min.js"></script>
       <script type="text/javascript" src="lib/index.js"></script>
+      <script type="text/javascript" src="index.js"></script>
       <script type="text/javascript" src="lib/scheduler.js"></script>
+      <script type="text/javascript" src="lib/template.js"></script>
+      <script type="text/javascript" src="lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '';
+      </script>
     
         </head>
         <body>
-      <div id="library">
-        <img class="class icon" alt="class icon" src="lib/class.png" />
-        <img class="trait icon" alt="trait icon" src="lib/trait.png" />
-        <img class="object icon" alt="trait icon" src="lib/object.png" />
-        <img class="package icon" alt="trait icon" src="lib/package.png" />
-      </div>
-      <div id="browser" class="ui-layout-west">
-      <div class="ui-west-center">
-      <div id="filter">
-          <div id="textfilter"></div>
-          <div id="letters"><span>#</span><a target="template" href="index/index-a.html">A</a><a target="template" href="index/index-b.html">B</a><a target="template" href="index/index-c.html">C</a><a target="template" href="index/index-d.html">D</a><span>E</span><a target="template" href="index/index-f.html">F</a><a target="template" href="index/index-g.html">G</a><span>H</span><a target="template" href="index/index-i.html">I</a><span>J</span><span>K</span><a target="template" href="index/index-l.html">L</a><a target="template" href="index/index-m.html">M</a><span>N</span><span>O</span><a target="template" href="index/index-p.html">P</a><a target="template" href="index/index-q.html">Q</a><a target="template" href="index/index-r.html">R</a><a target="template" href="index/index-s.html">S</a><a target="template" href="index/index-t.html">T</a><span>U</span><a target="template" href="index/index-v.html">V</a><a target="template" href="index/index-w.html">W</a><span>X</span><span>Y</span><span>Z</span> – <span>deprecated</span></div>
-      </div>
-      <div class="pack" id="tpl">
-            
-            <ol class="templates"></ol>
-            <ol class="packages"> <li class="pack" title="ch2oobasics">
-            <a class="tplshow" href="ch2oobasics/package.html" target="template">ch2oobasics</a>
-            <ol class="templates"><li title="ch2oobasics.GradeBook"><a class="tplshow" href="ch2oobasics/GradeBook$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">GradeBook</span></a></li><li title="ch2oobasics.Student"><div class="placeholder"></div><a class="tplshow" href="ch2oobasics/Student.html" target="template"><span class="class">(class)</span><span class="tplLink">Student</span></a></li></ol>
-            <ol class="packages"> <li class="pack" title="ch2oobasics.bank">
-            <a class="tplshow" href="ch2oobasics/bank/package.html" target="template">ch2oobasics.bank</a>
-            <ol class="templates"><li title="ch2oobasics.bank.Account"><div class="placeholder"></div><a class="tplshow" href="ch2oobasics/bank/Account.html" target="template"><span class="class">(class)</span><span class="tplLink">Account</span></a></li><li title="ch2oobasics.bank.Address"><div class="placeholder"></div><a class="tplshow" href="ch2oobasics/bank/Address.html" target="template"><span class="class">(class)</span><span class="tplLink">Address</span></a></li><li title="ch2oobasics.bank.Bank"><div class="placeholder"></div><a class="tplshow" href="ch2oobasics/bank/Bank.html" target="template"><span class="class">(class)</span><span class="tplLink">Bank</span></a></li><li title="ch2oobasics.bank.BankMain"><a class="tplshow" href="ch2oobasics/bank/BankMain$.html" target="template"><span class="object">(object)</span><div class="placeholder"></div><span class="tplLink">BankMain</span></a></li><li title="ch2oobasics.bank.Customer"><div class="placeholder"></div><a class="tplshow" href="ch2oobasics/bank/Customer.html" target="template"><span class="class">(class)</span><span class="tplLink">Customer</span></a></li><li title="ch2oobasics.bank.Loan"><div class="placeholder"></div><a class="tplshow" href="ch2oobasics/bank/Loan.html" target="template"><span class="class">(class)</span><span class="tplLink">Loan</span></a></li><li title="ch2oobasics.bank.PhoneNumber"><div class="placeholder"></div><a class="tplshow" href="ch2oobasics/bank/PhoneNumber.html" target="template"><span class="class">(class)</span><span class="tplLink">PhoneNumber</span></a></li></ol>
-            <ol class="packages"> </ol>
-          </li></ol>
-          </li></ol>
-          </div></div><script src="index.js"></script>
+      <div id="search">
+        <span id="doc-title">
+          
+          <span id="doc-version">
+          
+          </span>
+        </span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
     </div>
-      <div id="content" class="ui-layout-center">
-        <iframe id="template" name="template" src="package.html"></iframe>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 current" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="index.html#_root_" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">root</span>
+      </span>
+      
+      
+    </li><li name="_root_.binaryfiles" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="binaryfiles"></a><a id="binaryfiles:binaryfiles"></a>
+      <span class="permalink">
+      <a href="index.html#binaryfiles" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="binaryfiles/index.html">
+              <span class="name">binaryfiles</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.guigraphics" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="guigraphics"></a><a id="guigraphics:guigraphics"></a>
+      <span class="permalink">
+      <a href="index.html#guigraphics" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="guigraphics/index.html">
+              <span class="name">guigraphics</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.hashtables" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="hashtables"></a><a id="hashtables:hashtables"></a>
+      <span class="permalink">
+      <a href="index.html#hashtables" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="hashtables/index.html">
+              <span class="name">hashtables</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.heaps" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="heaps"></a><a id="heaps:heaps"></a>
+      <span class="permalink">
+      <a href="index.html#heaps" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="heaps/index.html">
+              <span class="name">heaps</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.iostreams" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="iostreams"></a><a id="iostreams:iostreams"></a>
+      <span class="permalink">
+      <a href="index.html#iostreams" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="iostreams/index.html">
+              <span class="name">iostreams</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.linkedlist" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="linkedlist"></a><a id="linkedlist:linkedlist"></a>
+      <span class="permalink">
+      <a href="index.html#linkedlist" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="linkedlist/index.html">
+              <span class="name">linkedlist</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.mapset" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mapset"></a><a id="mapset:mapset"></a>
+      <span class="permalink">
+      <a href="index.html#mapset" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="mapset/index.html">
+              <span class="name">mapset</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.moretrees" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="moretrees"></a><a id="moretrees:moretrees"></a>
+      <span class="permalink">
+      <a href="index.html#moretrees" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="moretrees/index.html">
+              <span class="name">moretrees</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.multithreading1" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="multithreading1"></a><a id="multithreading1:multithreading1"></a>
+      <span class="permalink">
+      <a href="index.html#multithreading1" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="multithreading1/index.html">
+              <span class="name">multithreading1</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.multithreading2" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="multithreading2"></a><a id="multithreading2:multithreading2"></a>
+      <span class="permalink">
+      <a href="index.html#multithreading2" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="multithreading2/index.html">
+              <span class="name">multithreading2</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.networking" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="networking"></a><a id="networking:networking"></a>
+      <span class="permalink">
+      <a href="index.html#networking" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="networking/index.html">
+              <span class="name">networking</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.oobasics" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="oobasics"></a><a id="oobasics:oobasics"></a>
+      <span class="permalink">
+      <a href="index.html#oobasics" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="oobasics/index.html">
+              <span class="name">oobasics</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.oodetails" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="oodetails"></a><a id="oodetails:oodetails"></a>
+      <span class="permalink">
+      <a href="index.html#oodetails" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="oodetails/index.html">
+              <span class="name">oodetails</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.polymorphism" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="polymorphism"></a><a id="polymorphism:polymorphism"></a>
+      <span class="permalink">
+      <a href="index.html#polymorphism" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="polymorphism/index.html">
+              <span class="name">polymorphism</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.priorityqueues" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="priorityqueues"></a><a id="priorityqueues:priorityqueues"></a>
+      <span class="permalink">
+      <a href="index.html#priorityqueues" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="priorityqueues/index.html">
+              <span class="name">priorityqueues</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.recursion" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="recursion"></a><a id="recursion:recursion"></a>
+      <span class="permalink">
+      <a href="index.html#recursion" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="recursion/index.html">
+              <span class="name">recursion</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.recursionrefresh" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="recursionrefresh"></a><a id="recursionrefresh:recursionrefresh"></a>
+      <span class="permalink">
+      <a href="index.html#recursionrefresh" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="recursionrefresh/index.html">
+              <span class="name">recursionrefresh</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.regexparser" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="regexparser"></a><a id="regexparser:regexparser"></a>
+      <span class="permalink">
+      <a href="index.html#regexparser" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="regexparser/index.html">
+              <span class="name">regexparser</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.scalalang" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="scalalang"></a><a id="scalalang:scalalang"></a>
+      <span class="permalink">
+      <a href="index.html#scalalang" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="scalalang/index.html">
+              <span class="name">scalalang</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.spatialtrees" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="spatialtrees"></a><a id="spatialtrees:spatialtrees"></a>
+      <span class="permalink">
+      <a href="index.html#spatialtrees" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="spatialtrees/index.html">
+              <span class="name">spatialtrees</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.stackqueue" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="stackqueue"></a><a id="stackqueue:stackqueue"></a>
+      <span class="permalink">
+      <a href="index.html#stackqueue" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="stackqueue/index.html">
+              <span class="name">stackqueue</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.test" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="test"></a><a id="test:test"></a>
+      <span class="permalink">
+      <a href="index.html#test" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="test/index.html">
+              <span class="name">test</span>
+            </a>
+      </span>
+      
+      
+    </li><li name="_root_.trees" visbl="pub" class="indented1 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="trees"></a><a id="trees:trees"></a>
+      <span class="permalink">
+      <a href="index.html#trees" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="trees/index.html">
+              <span class="name">trees</span>
+            </a>
+      </span>
+      
+      
+    </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="package value">
+      <div id="definition">
+        <div class="big-circle package">p</div>
+        
+        <h1>root package<span class="permalink">
+      <a href="index.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">root</span>
+      </span>
+      </h4>
+
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+    </body>
+          </div>
+        </div>
       </div>
     </body>
       </html>
