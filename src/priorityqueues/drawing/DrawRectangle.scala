@@ -51,14 +51,14 @@ class DrawRectangle(
     </drawable>
   }
 
-  private def writeObject(oos: ObjectOutputStream) {
+  private def writeObject(oos: ObjectOutputStream): Unit = {
     oos.defaultWriteObject()
     oos.writeDouble(_color.red)
     oos.writeDouble(_color.green)
     oos.writeDouble(_color.blue)
     oos.writeDouble(_color.opacity)
   }
-  private def readObject(ois: ObjectInputStream) {
+  private def readObject(ois: ObjectInputStream): Unit = {
     ois.defaultReadObject()
     _color = Color(ois.readDouble(), ois.readDouble(), ois.readDouble(), ois.readDouble())
   }

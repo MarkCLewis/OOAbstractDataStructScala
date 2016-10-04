@@ -49,14 +49,14 @@ class ToDValues[A] private (private val values: Array[Option[A]]) {
    *
    *  @param hour the hour to clear.
    */
-  def clear(hour: Int) { values(hour) = None }
+  def clear(hour: Int): Unit = { values(hour) = None }
 
   /**
    * This method clears the value at a particular time.
    *
    *  @param hour the hour to clear.
    */
-  def clear(time: String) {
+  def clear(time: String): Unit = {
     val hour = hourFromTime(time)
     values(hour) = None
   }
