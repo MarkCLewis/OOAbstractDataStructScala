@@ -32,7 +32,7 @@ object RMIServer extends UnicastRemoteObject with App with RemoteServer {
     if (history.length > 10) history.remove(0)
   }
 
-  private def sendUpdate {
+  private def sendUpdate: Unit = {
     val deadClients = clients.filter(c =>
       try {
         c.name
