@@ -66,7 +66,7 @@ class SinglyLinkedList[A] {
     } else {
       var rover = head
       for (i <- 0 until index - 1) rover = rover.next
-      val ret = rover.data
+      val ret = rover.next.data
       rover.next = rover.next.next
       ret
     }
