@@ -9,7 +9,7 @@ class ArrayStack[A: ClassTag] extends Stack[A] {
   def push(obj: A) {
     if (top >= data.length) {
       val tmp = new Array[A](data.length * 2)
-      Array.copy(data, 0, tmp, 0, data.length)
+      for (i <- 0 until data.length) tmp(i) = data(i)
       data = tmp
     }
     data(top) = obj
