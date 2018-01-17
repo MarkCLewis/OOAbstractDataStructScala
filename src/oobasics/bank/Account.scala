@@ -30,7 +30,7 @@ class Account(
 
   /**
    * Makes a withdraw from the account. The amount must be positive and less
-   * than the current balance.
+   * than or equal to the current balance.
    * @param amount the amount to withdraw.
    * @return tells if the withdraw occurred successfully.
    */

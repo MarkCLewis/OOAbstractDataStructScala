@@ -8,9 +8,9 @@ class Bank(
     private var _accounts: List[Account] = Nil,
     private var _loans: List[Loan] = Nil) {
 
-  private var nextCustomerID: Int = _customers.foldLeft(-7)(_ min _.id.toInt) + 7
-  private var nextAccountID: Int = _accounts.foldLeft(-13)(_ min _.id.toInt) + 13
-  private var nextLoanID: Int = _loans.foldLeft(-17)(_ min _.id.toInt) + 17
+  private var nextCustomerID: Int = _customers.foldLeft(-7)(_ max _.id.toInt) + 7
+  private var nextAccountID: Int = _accounts.foldLeft(-13)(_ max _.id.toInt) + 13
+  private var nextLoanID: Int = _loans.foldLeft(-17)(_ max _.id.toInt) + 17
 
   /**
    * Add a customer to this bank. Creates a new customer with the specified name.

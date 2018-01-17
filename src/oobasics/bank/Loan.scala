@@ -23,7 +23,7 @@ class Loan(
    * @return tells if the payment went through successfully. 
    */
   def payment(amount: Int): Boolean = {
-    if (amount > 0 && amount < _balance) {
+    if (amount > 0 && amount <= _balance) {
       _balance -= amount
       true
     } else false
